@@ -1,0 +1,14 @@
+>>> data.keys()
+dict_keys(['images', 'annotations', 'categories', 'licenses'])
+
+>>> data['images'][0].keys()
+dict_keys(['height', 'id', 'license', 'width', 'file_name', 'url'])
+
+>>> data['annotations'][0].keys()
+dict_keys(['id', 'iscrowd', 'isfake', 'area', 'isreflected', 'bbox', 'image_id', 'category_id'])
+
+>>> data['categories'][0].keys()
+dict_keys(['name', 'id'])
+
+data['licenses'][0].keys()
+dict_keys(['name', 'id', 'url'])
