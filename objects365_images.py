@@ -3,6 +3,8 @@ from pathlib import Path
 import json
 import numpy as np
 import os
+from PIL import Image
+import io
 
 def convert_objects365_to_parquet(input_json_path: str, output_parquet_path: str, batch_size: int = 10000):
     """
@@ -33,6 +35,59 @@ def iter_save_parque_chunks(output_dir, df, chunk_size):
             index=False
         )
         print(f"Saved chunk {i} to {output_file}")
+        
+def image_to_bytes(image_path):
+    """Convert image to raw bytes without JPG container"""
+    try:
+        with Image.open(image_path) as img:
+            # Convert to RGB if necessary
+            if img.mode != 'RGB':
+                img = img.convert('RGB')
+            # Save as raw bytes without container
+            byte_arr = io.BytesIO()
+            img.save(byte_arr, format='RAW')
+            return byte_arr.getvalue()
+    except Exception as e:
+        print(f"Error processing {image_path}: {e}")
+        return None
+    
+    
+claude_vomit = """
+
+def process_images_in_chunks(root_dir, chunk_size=4000, output_dir='chunks_output'):
+    # Create output directory
+    os.makedirs(output_dir, exist_ok=True)
+    
+    # Get all jpg files recursively
+    jpg_files = glob.glob(os.path.join(root_dir, '**/*.jpg'), recursive=True)
+    
+    # Process in chunks
+    for chunk_idx, i in enumerate(range(0, len(jpg_files), chunk_size)):
+        chunk_files = jpg_files[i:i + chunk_size]
+        
+        # Process chunk
+        data = {
+            'filename': [],
+            'image_bytes': []
+        }
+        
+        for file_path in chunk_files:
+            image_bytes = image_to_bytes(file_path)
+            if image_bytes is not None:
+                data['filename'].append(file_path)
+                data['image_bytes'].append(image_bytes)
+        
+        # Create DataFrame and save to parquet
+        if data['filename']:  # Only save if there's data
+            df = pd.DataFrame(data)
+            output_file = os.path.join(output_dir, f'chunk_{chunk_idx}.parquet')
+            df.to_parquet(
+                output_file,
+                compression='snappy',
+                index=False
+            )
+            print(f"Saved chunk {chunk_idx} with {len(df)} images to {output_file}")
+"""
 
 if __name__ == "__main__":
     # Example usage
