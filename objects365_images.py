@@ -52,7 +52,51 @@ def image_to_bytes(image_path):
         return None
     
     
+#---------------------------------------------------------
+    
+def process_images(coco_data, image_dir, start_index):
+    images_data = []
+    counter = 0
+    iter_index = 0
+    for iter_index in range(start_index, len(coco_data['images'])):
+        img_info = coco_data['images'][iter_index]
+        img_path = os.path.join(image_dir, img_info['file_name'])
+        try:
+            with Image.open(img_path) as img: # read binary -> byte buffer > save (instead of image) (preserve extension data in extra column, for opening)
+                img_array = np.array(img)
+                img_info['image_data'] = img_array.tobytes()
+                img_info['image_shape'] = img_array.shape
+                images_data.append(img_info)
+                counter += 1
+        except Exception as e:
+            print(f"Error processing image {img_path}: {str(e)}")
+        if counter == 3000:
+            break
+    return pd.DataFrame(images_data), iter_index + 1
+
+# --------------------------------
+
+import numpy as np
+import cv2
+
+
+def parquet_image_to_cv2(image_data: bytearray, image_shape: np.ndarray):
+    img = np.frombuffer(image_data, dtype=np.uint8)
+    img = img.reshape((image_shape))
+    im_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    return im_rgb
+        
+
+def s3file_to_cv2(s3file):
+    arr = np.asarray(bytearray(s3file), dtype=np.uint8)
+    img = cv2.imdecode(arr, cv2.IMREAD_UNCHANGED)
+    return img
+
+#---------------------------------------------------------
+    
 claude_vomit = """
+
+
 
 def process_images_in_chunks(root_dir, chunk_size=4000, output_dir='chunks_output'):
     # Create output directory
