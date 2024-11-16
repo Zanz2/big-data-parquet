@@ -50,18 +50,6 @@ def convert_objects365_to_parquet(input_json_path: str, output_parquet_path: str
         )
     
 
-def iter_save_parque_chunks(output_dir, df, chunk_size):
-    output_dir_parent = Path(output_dir)
-    output_dir_parent.mkdir(parents=True, exist_ok=True)
-    for i, chunk in enumerate(np.array_split(df, len(df) // chunk_size)):
-        output_file = os.path.join(output_dir, f'chunk_{i}.parquet')
-        chunk.to_parquet(
-            output_file,
-            compression='snappy',
-            index=False
-        )
-        print(f"Saved chunk {i} to {output_file}")
-
 if __name__ == "__main__":
     # Example usage
     input_path = "/media/zanz/backup_disk_work/public_datasets/objects365/train/zhiyuan_objv2_train.json"

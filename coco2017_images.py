@@ -5,7 +5,7 @@ import os
 from PIL import Image
 import cv2
 
-def convert_objects365_to_parquet(input_image_folder: str, output_parquet_folder: str, batch_size: int):
+def convert_dataset_to_parquet(input_image_folder: str, output_parquet_folder: str, batch_size: int):
 
     # Create output directory if it doesn't exist
     output_dir = Path(output_parquet_folder).parent
@@ -25,8 +25,8 @@ def convert_objects365_to_parquet(input_image_folder: str, output_parquet_folder
             if len(filenames) == batch_size:
                 assert len(filenames) == len(full_paths)
                 print("Writing parquet")
-                #processed_chunk_df = process_images(full_paths, filenames)
-                #iter_save_parque_chunks(output_parquet_folder, processed_chunk_df, chunk_index ,chunk_index*batch_size)
+                processed_chunk_df = process_images(full_paths, filenames)
+                iter_save_parque_chunks(output_parquet_folder, processed_chunk_df, chunk_index ,chunk_index*batch_size)
                 chunk_index += 1
                 full_paths = []
                 filenames = []
@@ -101,23 +101,18 @@ def s3file_to_cv2(s3file):
 
 
 if __name__ == "__main__":
-    # Example usage
-    input_path = "/media/zanz/backup_disk_work/public_datasets/objects365/val/"
-    #output_path = "/home/zanz/work_github/big-data-parquet/output/objects365_parquet/data/val/"
-    output_path = "/media/zanz/backup_disk_work/public_datasets/objects365_parquet/data/val/"
     batch_size = 11000
-    
-    convert_objects365_to_parquet(
+    input_path = "/media/zanz/backup_disk_work/public_datasets/coco/unlabeled2017/"
+    output_path = "/media/zanz/backup_disk_work/public_datasets/coco_full_parquet/data/unlabeled2017/"
+    convert_dataset_to_parquet(
         input_image_folder=input_path,
         output_parquet_folder=output_path,
         batch_size=batch_size
     )
-    
-    input_path = "/media/zanz/backup_disk_work/public_datasets/objects365/train/"
-    #output_path = "/home/zanz/work_github/big-data-parquet/output/objects365_parquet/data/train/"
-    output_path = "/media/zanz/backup_disk_work/public_datasets/objects365_parquet/data/train/"
-    
-    convert_objects365_to_parquet(
+
+    input_path = "/media/zanz/backup_disk_work/public_datasets/coco/test2017/"
+    output_path = "/media/zanz/backup_disk_work/public_datasets/coco_full_parquet/data/test2017/"
+    convert_dataset_to_parquet(
         input_image_folder=input_path,
         output_parquet_folder=output_path,
         batch_size=batch_size
