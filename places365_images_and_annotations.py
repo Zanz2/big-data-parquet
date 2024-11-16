@@ -5,7 +5,7 @@ import os
 from PIL import Image
 import cv2
 
-def convert_dataset_to_parquet(input_image_folder: str, output_parquet_folder: str, batch_size: int):
+def convert_dataset_to_parquet(input_image_folder: str, output_parquet_folder: str):
 
     # Create output directory if it doesn't exist
     output_dir = Path(output_parquet_folder).parent
@@ -22,20 +22,18 @@ def convert_dataset_to_parquet(input_image_folder: str, output_parquet_folder: s
                 full_paths.append(full_path)
                 filenames.append(file)
             
-            if len(filenames) == batch_size:
-                assert len(filenames) == len(full_paths)
-                print("Writing parquet")
-                processed_chunk_df = process_images(full_paths, filenames)
-                iter_save_parque_chunks(output_parquet_folder, processed_chunk_df, chunk_index ,chunk_index*batch_size)
-                chunk_index += 1
-                full_paths = []
-                filenames = []
-            elif len(filenames) > batch_size:
-                raise Exception("Error, too many files in batch, check code")
+            
+        assert len(filenames) == len(full_paths)
+        print("Writing parquet")
+        processed_chunk_df = process_images(full_paths, filenames)
+        iter_save_parque_chunks(output_parquet_folder, processed_chunk_df, chunk_index, full_paths[0].split("/")[-2])
+        chunk_index += 1
+        full_paths = []
+        filenames = []
     
     print("Writing parquet")
     processed_chunk_df = process_images(full_paths, filenames)
-    iter_save_parque_chunks(output_parquet_folder, processed_chunk_df, chunk_index ,chunk_index*batch_size)
+    iter_save_parque_chunks(output_parquet_folder, processed_chunk_df, chunk_index , full_paths[0].split("/")[-2])
 
 
 def iter_save_parque_chunks(output_dir, df, index, image_start):
@@ -103,19 +101,16 @@ def s3file_to_cv2(s3file):
 
 
 if __name__ == "__main__":
-    batch_size = 11000
     input_path = "/media/zanz/backup_disk_work/public_datasets/places365_standard/places365_standard/val/"
     output_path = "/media/zanz/backup_disk_work/public_datasets/places365_standard_parquet/data/val/"
     convert_dataset_to_parquet(
         input_image_folder=input_path,
-        output_parquet_folder=output_path,
-        batch_size=batch_size
+        output_parquet_folder=output_path
     )
 
-    input_path = "/media/zanz/backup_disk_work/public_datasets/places365_standard/places365_standard/train/"
-    output_path = "/media/zanz/backup_disk_work/public_datasets/places365_standard_parquet/data/train/"
-    convert_dataset_to_parquet(
-        input_image_folder=input_path,
-        output_parquet_folder=output_path,
-        batch_size=batch_size
-    )
+    #input_path = "/media/zanz/backup_disk_work/public_datasets/places365_standard/places365_standard/train/"
+    #output_path = "/media/zanz/backup_disk_work/public_datasets/places365_standard_parquet/data/train/"
+    #convert_dataset_to_parquet(
+    #    input_image_folder=input_path,
+    #    output_parquet_folder=output_path
+    #)
