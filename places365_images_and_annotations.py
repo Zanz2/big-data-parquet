@@ -22,7 +22,8 @@ def convert_dataset_to_parquet(input_image_folder: str, output_parquet_folder: s
                 full_paths.append(full_path)
                 filenames.append(file)
             
-            
+
+        if len(filenames) == 0: continue
         assert len(filenames) == len(full_paths)
         print("Writing parquet")
         processed_chunk_df = process_images(full_paths, filenames)
