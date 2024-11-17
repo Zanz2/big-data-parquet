@@ -37,8 +37,8 @@ def convert_lsun_to_parquet_chunks(mdb_dir, output_dir, chunk_size=11000):
                 batch_data['image'].append(value)
                 
                 # Write batch when chunk_size is reached
-                if (idx + 1) % chunk_size == 0:
-                    output_file = os.path.join(output_dir, f'part_{file_counter:04d}.parquet')
+                if (idx + 1) % chunk_size == 0: # chunk_{index}_{image_start}.parquet
+                    output_file = os.path.join(output_dir, f'chunk_{file_counter:03d}_{chunk_size*file_counter}.parquet')
                     table = pa.Table.from_pydict(batch_data, schema=schema)
                     
                     # Write the chunk to a new parquet file
@@ -55,7 +55,7 @@ def convert_lsun_to_parquet_chunks(mdb_dir, output_dir, chunk_size=11000):
             
             # Write remaining data if any
             if batch_data['key']:
-                output_file = os.path.join(output_dir, f'part_{file_counter:04d}.parquet')
+                output_file = os.path.join(output_dir, f'chunk_{file_counter:03d}_{chunk_size*file_counter}.parquet')
                 table = pa.Table.from_pydict(batch_data, schema=schema)
                 pq.write_table(
                     table, 

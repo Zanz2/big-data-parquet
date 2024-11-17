@@ -31,11 +31,6 @@ def convert_dataset_to_parquet(input_image_folder: str, output_parquet_folder: s
         chunk_index += 1
         full_paths = []
         filenames = []
-    
-    if len(filenames) > 0:
-        print("Writing parquet")
-        processed_chunk_df = process_images(full_paths, filenames)
-        iter_save_parque_chunks(output_parquet_folder, processed_chunk_df, chunk_index , full_paths[0].split("\\")[-2])
 
 
 def iter_save_parque_chunks(output_dir, df, index, image_start):
