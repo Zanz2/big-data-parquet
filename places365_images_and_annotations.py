@@ -27,14 +27,15 @@ def convert_dataset_to_parquet(input_image_folder: str, output_parquet_folder: s
         assert len(filenames) == len(full_paths)
         print("Writing parquet")
         processed_chunk_df = process_images(full_paths, filenames)
-        iter_save_parque_chunks(output_parquet_folder, processed_chunk_df, chunk_index, full_paths[0].split("/")[-2])
+        iter_save_parque_chunks(output_parquet_folder, processed_chunk_df, chunk_index, full_paths[0].split("\\")[-2])
         chunk_index += 1
         full_paths = []
         filenames = []
     
-    print("Writing parquet")
-    processed_chunk_df = process_images(full_paths, filenames)
-    iter_save_parque_chunks(output_parquet_folder, processed_chunk_df, chunk_index , full_paths[0].split("/")[-2])
+    if len(filenames) > 0:
+        print("Writing parquet")
+        processed_chunk_df = process_images(full_paths, filenames)
+        iter_save_parque_chunks(output_parquet_folder, processed_chunk_df, chunk_index , full_paths[0].split("\\")[-2])
 
 
 def iter_save_parque_chunks(output_dir, df, index, image_start):
@@ -54,6 +55,7 @@ def iter_save_parque_chunks(output_dir, df, index, image_start):
     
 def process_images(filepaths_list, filenames_list):
     images_data = []
+    #print(filepaths_list)
     for index, file_path in enumerate(filepaths_list):
         img_info = {}
         try:
@@ -66,7 +68,7 @@ def process_images(filepaths_list, filenames_list):
             
             # Get image info without keeping the full image in memory
             with Image.open(file_path) as img:
-                img_info['scene'] = file_path.split("/")[-2]
+                img_info['scene'] = file_path.split("\\")[-2]
                 img_info['filename'] = filenames_list[index]
                 img_info['image_bytes'] = img_bytes
                 img_info['format'] = img_format
@@ -102,16 +104,16 @@ def s3file_to_cv2(s3file):
 
 
 if __name__ == "__main__":
-    input_path = "/media/zanz/backup_disk_work/public_datasets/places365_standard/places365_standard/val/"
-    output_path = "/media/zanz/backup_disk_work/public_datasets/places365_standard_parquet/data/val/"
-    convert_dataset_to_parquet(
-        input_image_folder=input_path,
-        output_parquet_folder=output_path
-    )
-
-    #input_path = "/media/zanz/backup_disk_work/public_datasets/places365_standard/places365_standard/train/"
-    #output_path = "/media/zanz/backup_disk_work/public_datasets/places365_standard_parquet/data/train/"
+    #input_path = "E:\\public_datasets\\places365_standard\\places365_standard\\val\\"
+    #output_path = "E:\\public_datasets\\places365_standard_parquet\\data\\val\\"
     #convert_dataset_to_parquet(
     #    input_image_folder=input_path,
     #    output_parquet_folder=output_path
     #)
+
+    input_path = "E:\\public_datasets\\places365_standard\\places365_standard\\train\\"
+    output_path = "E:\\public_datasets\\places365_standard_parquet\\data\\train\\"
+    convert_dataset_to_parquet(
+        input_image_folder=input_path,
+        output_parquet_folder=output_path
+    )
